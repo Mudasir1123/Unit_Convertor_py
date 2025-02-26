@@ -1,10 +1,11 @@
 import streamlit as st
 import requests
 from conversion_factors import conversion_factors  # Import your conversion data
+import google.generativeai as genai
 
 # API for real-time exchange rates
 EXCHANGE_RATE_API = "https://api.exchangerate-api.com/v4/latest/USD"
-
+genai.configure(api_key="AIzaSyBBTNFznyQOKaD56pYb-dXxwbp8bGYOXAI")
 # Function to fetch all available currencies
 def fetch_currencies():
     try:
@@ -68,29 +69,22 @@ def convert_units(value, from_unit, to_unit):
     if from_unit == to_unit:
         return value  # No conversion needed
 
-    # Handle temperature conversion separately
     if from_unit in unit_categories["Temperature"] and to_unit in unit_categories["Temperature"]:
         return convert_temperature(value, from_unit, to_unit)
 
-    # Handle currency conversion separately
     if from_unit in currency_list and to_unit in currency_list:
         try:
             response = requests.get(EXCHANGE_RATE_API)
             data = response.json()
             rates = data["rates"]
-            
-            if from_unit in rates and to_unit in rates:
-                return value * (rates[to_unit] / rates[from_unit])
-            else:
-                return None
+            return value * (rates[to_unit] / rates[from_unit]) if from_unit in rates and to_unit in rates else None
         except Exception as e:
             st.error(f"Error fetching exchange rates: {e}")
             return None
 
-    # General unit conversion
     key = (from_unit, to_unit)
     reverse_key = (to_unit, from_unit)
-
+    
     if key in conversion_factors:
         return value * conversion_factors[key]
     elif reverse_key in conversion_factors:
@@ -98,10 +92,11 @@ def convert_units(value, from_unit, to_unit):
 
     return None  # Conversion not available
 
-# Streamlit app UI
-st.title("🌟 Advanced Unit Converter")
+# Streamlit App UI
+st.title("🌟 Advanced Unit Converter with Gemini AI 🤖")
 
-# Two columns for input fields
+# Unit conversion section
+st.header("Unit Converter 🔄")
 col1, col2 = st.columns(2)
 
 with col1:
@@ -110,7 +105,6 @@ with col1:
 with col2:
     category = st.selectbox("Select Category", list(unit_categories.keys()))
 
-# Two columns for unit selection
 col3, col4 = st.columns(2)
 
 with col3:
@@ -119,10 +113,30 @@ with col3:
 with col4:
     to_unit = st.selectbox("To", unit_categories[category])
 
-# Convert and display result
 if st.button("Convert 🔄"):
     result = convert_units(value, from_unit, to_unit)
     if result is not None:
         st.success(f"✅ {value} {from_unit} = {result:.4f} {to_unit}")
     else:
-        st.error("❌ Conversion not possible.")
+        st.error("❌ Conversion not possible.")
+
+# Ask Gemini AI Section
+st.header("💬 Unit Converter")
+user_prompt = st.text_area("Enter your question:", placeholder="Ask anything...")
+
+def ask_gemini(prompt):
+    try:
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        return f"❌ Error: {e}"
+
+if st.button("Ask Unit🤖"):
+    if user_prompt.strip():
+        with st.spinner("Generating response..."):
+            gemini_response = ask_gemini(user_prompt)
+        st.success("✅ Response from Gemini:")
+        st.write(gemini_response)
+    else:
+        st.warning("⚠️ Please enter a question before clicking the button.")    
