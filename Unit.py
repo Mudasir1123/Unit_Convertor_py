@@ -2,7 +2,6 @@ import streamlit as st
 import requests
 from conversion_factors import conversion_factors  # Import your conversion data
 import google.generativeai as genai
-
 # API for real-time exchange rates
 EXCHANGE_RATE_API = "https://api.exchangerate-api.com/v4/latest/USD"
 genai.configure(api_key="AIzaSyBBTNFznyQOKaD56pYb-dXxwbp8bGYOXAI")
@@ -46,15 +45,12 @@ def convert_temperature(value, from_unit, to_unit):
         ("Celsius", "Newton"): lambda x: x * 0.33,
         ("Celsius", "Réaumur"): lambda x: x * 0.8,
         ("Celsius", "Rømer"): lambda x: (x * 21/40) + 7.5,
-
         ("Fahrenheit", "Celsius"): lambda x: (x - 32) * 5/9,
         ("Fahrenheit", "Kelvin"): lambda x: (x - 32) * 5/9 + 273.15,
         ("Fahrenheit", "Rankine"): lambda x: x + 459.67,
-
         ("Kelvin", "Celsius"): lambda x: x - 273.15,
         ("Kelvin", "Fahrenheit"): lambda x: (x - 273.15) * 9/5 + 32,
         ("Kelvin", "Rankine"): lambda x: x * 9/5,
-
         ("Rankine", "Celsius"): lambda x: (x - 491.67) * 5/9,
         ("Rankine", "Fahrenheit"): lambda x: x - 459.67,
         ("Rankine", "Kelvin"): lambda x: x * 5/9
