@@ -40,6 +40,22 @@ def convert_units(value, from_unit, to_unit):
     if from_unit == to_unit:
         return value  # No conversion needed
 
+    # Handle currency conversion separately
+    if from_unit in currency_list and to_unit in currency_list:
+        try:
+            response = requests.get(EXCHANGE_RATE_API)
+            data = response.json()
+            rates = data["rates"]
+            
+            if from_unit in rates and to_unit in rates:
+                return value * (rates[to_unit] / rates[from_unit])
+            else:
+                return None
+        except Exception as e:
+            st.error(f"Error fetching exchange rates: {e}")
+            return None
+
+    # General unit conversion
     key = (from_unit, to_unit)
     reverse_key = (to_unit, from_unit)
 
@@ -67,16 +83,10 @@ st.markdown("""
             font-size: 18px;
             border-radius: 8px;
             display: flex;
-            margin: auto;  /* Centers the button */
+            margin: auto;
         }
         .stButton>button:hover {
             background-color: #45a049;
-        }
-        .button-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 20px;
         }
     </style>
 """, unsafe_allow_html=True)
