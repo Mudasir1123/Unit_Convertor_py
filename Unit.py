@@ -36,9 +36,41 @@ unit_categories = {
 }
 
 # Function to convert units
+def convert_temperature(value, from_unit, to_unit):
+    conversions = {
+        ("Celsius", "Fahrenheit"): lambda x: (x * 9/5) + 32,
+        ("Celsius", "Kelvin"): lambda x: x + 273.15,
+        ("Celsius", "Rankine"): lambda x: (x + 273.15) * 9/5,
+        ("Celsius", "Delisle"): lambda x: (100 - x) * 1.5,
+        ("Celsius", "Newton"): lambda x: x * 0.33,
+        ("Celsius", "Réaumur"): lambda x: x * 0.8,
+        ("Celsius", "Rømer"): lambda x: (x * 21/40) + 7.5,
+
+        ("Fahrenheit", "Celsius"): lambda x: (x - 32) * 5/9,
+        ("Fahrenheit", "Kelvin"): lambda x: (x - 32) * 5/9 + 273.15,
+        ("Fahrenheit", "Rankine"): lambda x: x + 459.67,
+
+        ("Kelvin", "Celsius"): lambda x: x - 273.15,
+        ("Kelvin", "Fahrenheit"): lambda x: (x - 273.15) * 9/5 + 32,
+        ("Kelvin", "Rankine"): lambda x: x * 9/5,
+
+        ("Rankine", "Celsius"): lambda x: (x - 491.67) * 5/9,
+        ("Rankine", "Fahrenheit"): lambda x: x - 459.67,
+        ("Rankine", "Kelvin"): lambda x: x * 5/9
+    }
+
+    if (from_unit, to_unit) in conversions:
+        return conversions[(from_unit, to_unit)](value)
+    return None  # If conversion is not found
+
+# Function to convert units
 def convert_units(value, from_unit, to_unit):
     if from_unit == to_unit:
         return value  # No conversion needed
+
+    # Handle temperature conversion separately
+    if from_unit in unit_categories["Temperature"] and to_unit in unit_categories["Temperature"]:
+        return convert_temperature(value, from_unit, to_unit)
 
     # Handle currency conversion separately
     if from_unit in currency_list and to_unit in currency_list:
@@ -66,35 +98,10 @@ def convert_units(value, from_unit, to_unit):
 
     return None  # Conversion not available
 
-# Custom CSS for styling
-st.markdown("""
-    <style>
-        .stTextInput>div>div>input {
-            font-size: 18px !important;
-            padding: 10px;
-        }
-        .stSelectbox>div>div {
-            font-size: 18px !important;
-        }
-        .stButton>button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            font-size: 18px;
-            border-radius: 8px;
-            display: flex;
-            margin: auto;
-        }
-        .stButton>button:hover {
-            background-color: #45a049;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
-# Streamlit app
+# Streamlit app UI
 st.title("🌟 Advanced Unit Converter")
 
-# Two columns for input fields in one row
+# Two columns for input fields
 col1, col2 = st.columns(2)
 
 with col1:
@@ -103,7 +110,7 @@ with col1:
 with col2:
     category = st.selectbox("Select Category", list(unit_categories.keys()))
 
-# Two columns for unit selection in one row
+# Two columns for unit selection
 col3, col4 = st.columns(2)
 
 with col3:
@@ -118,4 +125,4 @@ if st.button("Convert 🔄"):
     if result is not None:
         st.success(f"✅ {value} {from_unit} = {result:.4f} {to_unit}")
     else:
-        st.error("❌ Conversion not possible.")
+        st.error("❌ Conversion not possible.")
