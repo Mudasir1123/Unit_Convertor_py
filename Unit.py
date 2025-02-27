@@ -89,7 +89,7 @@ def convert_units(value, from_unit, to_unit):
     return None  # Conversion not available
 
 # Streamlit App UI
-st.title("🌟 Advanced Unit Converter with Gemini AI 🤖")
+st.title("🌟 Advanced Unit Converter with AI 🤖")
 
 # Unit conversion section
 st.header("Unit Converter 🔄")
@@ -132,7 +132,7 @@ if st.button("Ask Unit🤖"):
     if user_prompt.strip():
         with st.spinner("Generating response..."):
             gemini_response = ask_gemini(user_prompt)
-        st.success("✅ Response from Gemini:")
+        # st.success("✅ Response from Gemini:")
         st.write(gemini_response)
     else:
         st.warning("⚠️ Please enter a question before clicking the button.")    
